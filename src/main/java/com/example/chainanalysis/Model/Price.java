@@ -1,7 +1,8 @@
 package com.example.chainanalysis.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.sql.Time;
+
 
 @Entity
 @Table
@@ -17,7 +18,7 @@ public class Price {
             generator = "exchange_sequence"
     )
     private Long id;
-    private Timestamp time;
+    private Time time;
     private Double BinanceBTCSellPrice;
     private Double BinanceBTCBuyPrice;
     private Double BinanceETHSellPrice;
@@ -29,7 +30,7 @@ public class Price {
 
     public Price() {}
 
-    public Price(Long id, Timestamp time, Double binanceBTCSellPrice, Double binanceBTCBuyPrice, Double binanceETHSellPrice, Double binanceETHBuyPrice, Double bittrexBTCSellPrice, Double bittrexBTCBuyPrice, Double bittrexETHSellPrice, Double bittrexETHBuyPrice) {
+    public Price(Long id, Time time, Double binanceBTCSellPrice, Double binanceBTCBuyPrice, Double binanceETHSellPrice, Double binanceETHBuyPrice, Double bittrexBTCSellPrice, Double bittrexBTCBuyPrice, Double bittrexETHSellPrice, Double bittrexETHBuyPrice) {
         this.id = id;
         this.time = time;
         BinanceBTCSellPrice = binanceBTCSellPrice;
@@ -42,7 +43,7 @@ public class Price {
         BittrexETHBuyPrice = bittrexETHBuyPrice;
     }
 
-    public Price(Timestamp time, Double binanceBTCSellPrice, Double binanceBTCBuyPrice, Double binanceETHSellPrice, Double binanceETHBuyPrice, Double bittrexBTCSellPrice, Double bittrexBTCBuyPrice, Double bittrexETHSellPrice, Double bittrexETHBuyPrice) {
+    public Price(Time time, Double binanceBTCSellPrice, Double binanceBTCBuyPrice, Double binanceETHSellPrice, Double binanceETHBuyPrice, Double bittrexBTCSellPrice, Double bittrexBTCBuyPrice, Double bittrexETHSellPrice, Double bittrexETHBuyPrice) {
         this.time = time;
         BinanceBTCSellPrice = binanceBTCSellPrice;
         BinanceBTCBuyPrice = binanceBTCBuyPrice;
@@ -62,11 +63,11 @@ public class Price {
         this.id = id;
     }
 
-    public Timestamp getTime() {
+    public Time getTime() {
         return time;
     }
 
-    public void setTime(Timestamp time) {
+    public void setTime(Time time) {
         this.time = time;
     }
 

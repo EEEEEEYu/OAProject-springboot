@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
-@Configuration
+@Configuration("ExchangeConfig")
 public class ExchangeConfig {
     // Add initial exchange information
     @Bean
@@ -16,12 +16,12 @@ public class ExchangeConfig {
         return args -> {
             Exchange Binance = new Exchange(
                     "Binance",
-                    "https://api.binance.com/api/v3/ticker/bookTicker?symbol={}"
+                    "https://api.binance.com/api/v3/ticker/bookTicker?symbol=BTCUSDT"
             );
 
             Exchange Bittrex = new Exchange(
                     "Bittrex",
-                    "https://api.bittrex.com/v3/markets/{}/ticker"
+                    "https://api.bittrex.com/v3/markets/BTC-USDT/ticker"
             );
 
             repository.saveAll(

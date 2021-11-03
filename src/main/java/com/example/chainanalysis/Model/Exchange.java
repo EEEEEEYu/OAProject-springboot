@@ -15,21 +15,24 @@ public class Exchange {
             strategy = GenerationType.SEQUENCE,
             generator = "exchange_sequence"
     )
-    private Long id;
-    private String name;
-    private String apiURL;
+    private Long id; // id
+    private String name; // name of exchange
+    private String apiURL; // public api
+    private String cryptoNames; // name of cryptos, comma seperated!
 
     public Exchange() {}
 
-    public Exchange(Long id, String name, String apiURL) {
+    public Exchange(Long id, String name, String apiURL, String cryptoNames) {
         this.id = id;
         this.name = name;
         this.apiURL = apiURL;
+        this.cryptoNames = cryptoNames;
     }
 
-    public Exchange(String name, String apiURL) {
+    public Exchange(String name, String apiURL, String cryptoNames) {
         this.name = name;
         this.apiURL = apiURL;
+        this.cryptoNames = cryptoNames;
     }
 
     public Long getId() {
@@ -56,12 +59,21 @@ public class Exchange {
         this.apiURL = API_URL;
     }
 
+    public String getCryptoNames() {
+        return cryptoNames;
+    }
+
+    public void setCryptoNames(String cryptoNames) {
+        this.cryptoNames = cryptoNames;
+    }
+
     @Override
     public String toString() {
         return "Exchange{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", API_URL='" + apiURL + '\'' +
+                ", apiURL='" + apiURL + '\'' +
+                ", cryptoNames='" + cryptoNames + '\'' +
                 '}';
     }
 }

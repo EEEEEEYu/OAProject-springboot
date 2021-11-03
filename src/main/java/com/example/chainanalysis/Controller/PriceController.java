@@ -1,6 +1,6 @@
 package com.example.chainanalysis.Controller;
 
-import com.example.chainanalysis.Model.Price;
+import com.example.chainanalysis.Model.BinancePrice;
 import com.example.chainanalysis.Service.PriceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,13 +17,9 @@ public class PriceController {
         this.priceService = priceService;
     }
 
-    @GetMapping("/mostRecentPrice")
-    public Price getMostRecentPrice() {
-        return this.priceService.getMostRecentPrice();
+    @GetMapping("/mostRecentPrices")
+    public List<BinancePrice> getMostRecentPrice() {
+        return this.priceService.getMostRecentPrices();
     }
 
-    @GetMapping("/mostRecent60Prices")
-    public List<Price> getMostRecent60Price() {
-        return this.priceService.getMostRecent60Prices();
-    }
 }

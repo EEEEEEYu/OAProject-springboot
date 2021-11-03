@@ -1,17 +1,19 @@
-package com.example.chainanalysis.Service;
+package com.example.chainanalysis.Service.RestObjects;
 
 import org.springframework.web.client.RestTemplate;
 
 import java.util.concurrent.Callable;
 
-class BinanceDataObj {
+public class BinanceDataObj implements DataObj{
     private String symbol;
     private Double bidPrice;
     private Double bidQty;
     private Double askPrice;
     private Double askQty;
 
-    public BinanceDataObj() {}
+    public BinanceDataObj() {
+        super();
+    }
 
     public BinanceDataObj(String symbol, Double bidPrice, Double bidQty, Double askPrice, Double askQty) {
         this.symbol = symbol;
@@ -21,6 +23,7 @@ class BinanceDataObj {
         this.askQty = askQty;
     }
 
+    @Override
     public String getSymbol() {
         return symbol;
     }
@@ -71,20 +74,15 @@ class BinanceDataObj {
                 ", askQty=" + askQty +
                 '}';
     }
-}
 
-class BinanceCallable implements Callable<BinanceDataObj> {
-
-    private final String url;
-
-    public BinanceCallable(String url) {
-        this.url = url;
+    @Override
+    public Double getSellPrice() {
+        return this.bidPrice;
     }
 
     @Override
-    public BinanceDataObj call() throws Exception {
-        RestTemplate restTemplate = new RestTemplate();
-        BinanceDataObj binanceDataObj = restTemplate.getForObject(this.url, BinanceDataObj.class);
-        return binanceDataObj;
+    public Double getBuyPrice() {
+        return this.askPrice;
     }
 }
+

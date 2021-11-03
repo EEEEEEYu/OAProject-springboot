@@ -1,7 +1,7 @@
 package com.example.chainanalysis.Service;
 
-import com.example.chainanalysis.Model.Price;
-import com.example.chainanalysis.Repository.PriceRepository;
+import com.example.chainanalysis.Model.BinancePrice;
+import com.example.chainanalysis.Repository.BinancePriceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,18 +11,15 @@ import java.util.List;
 @Service
 public class PriceService {
 
-    private final PriceRepository priceRepository;
+    private final BinancePriceRepository binancePriceRepository;
 
     @Autowired
-    public PriceService(PriceRepository priceRepository) {
-        this.priceRepository = priceRepository;
+    public PriceService(BinancePriceRepository binancePriceRepository) {
+        this.binancePriceRepository = binancePriceRepository;
     }
 
-    public Price getMostRecentPrice() {
-        return new Price();
-    }
 
-    public List<Price> getMostRecent60Prices() {
+    public List<BinancePrice> getMostRecentPrices() {
         return new ArrayList<>();
     }
 

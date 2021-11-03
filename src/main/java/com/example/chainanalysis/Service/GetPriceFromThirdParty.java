@@ -1,19 +1,19 @@
 package com.example.chainanalysis.Service;
 
+import com.example.chainanalysis.Model.BittrexPrice;
 import com.example.chainanalysis.Model.Exchange;
-import com.example.chainanalysis.Model.Price;
+import com.example.chainanalysis.Model.BinancePrice;
+import com.example.chainanalysis.Repository.BittrexPriceRepository;
 import com.example.chainanalysis.Repository.ExchangeRepository;
-import com.example.chainanalysis.Repository.PriceRepository;
-import com.example.chainanalysis.Service.BinanceCallable;
-import com.example.chainanalysis.Service.BinanceDataObj;
-import com.example.chainanalysis.Service.BittrexCallable;
-import com.example.chainanalysis.Service.BittrexDataObj;
+import com.example.chainanalysis.Repository.BinancePriceRepository;
+import com.example.chainanalysis.Service.RestObjects.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import java.sql.Time;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,30 +23,35 @@ import java.util.concurrent.Future;
 
 class GetAndStoreDaemon implements Runnable {
 
-    private final Map<String, String> urls;
-    private final PriceRepository priceRepository;
+    private final Map<String, List<String>> urls;
     private final ExchangeRepository exchangeRepository;
+    private final BinancePriceRepository binancePriceRepository;
+    private final BittrexPriceRepository bittrexPriceRepository;
     private final Long interval;
 
-    GetAndStoreDaemon(Long interval, PriceRepository priceRepository, ExchangeRepository exchangeRepository) {
+    GetAndStoreDaemon(Long interval, ExchangeRepository exchangeRepository, BinancePriceRepository binancePriceRepository, BittrexPriceRepository bittrexPriceRepository) {
         this.urls = new HashMap<>();
         this.interval = interval;
-        this.priceRepository = priceRepository;
         this.exchangeRepository = exchangeRepository;
+        this.binancePriceRepository = binancePriceRepository;
+        this.bittrexPriceRepository = bittrexPriceRepository;
     }
 
     @Override
     public void run() {
         try {
+            // Wait for exchange table initialization
             Thread.sleep(5000);
 
-            // Fetch data in a fixed interval and store them in repository
             // Initialize all target urls
             List<Exchange> exchanges = this.exchangeRepository.findAll();
-            System.out.println("#################");
-            System.out.println(exchanges.size());
             for(Exchange exc:exchanges) {
-                this.urls.put(exc.getName(), exc.getApiURL());
+                this.urls.put(exc.getName(), new ArrayList<>());
+                // substitute {} with the crypto name
+                String[] allCryptosInThisExchange = exc.getCryptoNames().split(",");
+                for(String cryptoName:allCryptosInThisExchange) {
+                    this.urls.get(exc.getName()).add(exc.getApiURL().replace("{}", cryptoName));
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -55,24 +60,39 @@ class GetAndStoreDaemon implements Runnable {
         try {
             while(true) {
                 ExecutorService threadPool = Executors.newSingleThreadExecutor();
-                System.out.println(this.urls.get("Binance"));
-                Future<BinanceDataObj> binance = threadPool.submit(new BinanceCallable(this.urls.get("Binance")));
-                Future<BittrexDataObj> bittrex = threadPool.submit(new BittrexCallable(this.urls.get("Bittrex")));
+                // System.out.println(this.urls.get("Binance"));
+                // List of single crypto price pairs in an exchange
+                // We assume that the table of one exchange
+                Future<List<DataObj>> binance = threadPool.submit(new BinanceCallableObj(this.urls.get("Binance")));
+                Future<List<DataObj>> bittrex = threadPool.submit(new BittrexCallableObj(this.urls.get("Bittrex")));
 
-                Price price = new Price();
-                price.setBinanceBTCBuyPrice(binance.get().getAskPrice());
-                price.setBinanceBTCSellPrice(binance.get().getBidPrice());
-                price.setBinanceETHBuyPrice(binance.get().getAskPrice());
-                price.setBinanceETHSellPrice(binance.get().getBidPrice());
+                BinancePrice binancePrice = new BinancePrice();
+                binancePrice.setTime(Time.valueOf(LocalTime.now()));
+                // Loop over the crypto in the exchange
+                for(DataObj crypto: binance.get()) {
+                    if(crypto.getSymbol().equals("BTCUSDT")) {
+                        binancePrice.setBTCBuyPrice(crypto.getBuyPrice());
+                        binancePrice.setBTCSellPrice(crypto.getSellPrice());
+                    } else if(crypto.getSymbol().equals("ETHUSDT")) {
+                        binancePrice.setETHBuyPrice(crypto.getBuyPrice());
+                        binancePrice.setETHSellPrice(crypto.getSellPrice());
+                    }
+                }
+                this.binancePriceRepository.save(binancePrice);
 
-                price.setBittrexBTCBuyPrice(bittrex.get().getAskRate());
-                price.setBittrexBTCSellPrice(bittrex.get().getBidRate());
-                price.setBittrexETHBuyPrice(bittrex.get().getAskRate());
-                price.setBittrexETHSellPrice(bittrex.get().getBidRate());
+                BittrexPrice bittrexPrice = new BittrexPrice();
+                bittrexPrice.setTime(Time.valueOf(LocalTime.now()));
+                for(DataObj crypto: bittrex.get()) {
+                    if(crypto.getSymbol().equals("BTC-USDT")) {
+                        bittrexPrice.setBTCBuyPrice(crypto.getBuyPrice());
+                        bittrexPrice.setBTCSellPrice(crypto.getSellPrice());
+                    } else {
+                        bittrexPrice.setETHBuyPrice(crypto.getBuyPrice());
+                        bittrexPrice.setETHSellPrice(crypto.getSellPrice());
+                    }
+                }
+                this.bittrexPriceRepository.save(bittrexPrice);
 
-                price.setTime(Time.valueOf(LocalTime.now()));
-
-                this.priceRepository.save(price);
 
                 Thread.sleep(this.interval);
             }
@@ -84,18 +104,20 @@ class GetAndStoreDaemon implements Runnable {
 
 
 @Service
-@DependsOn({"ExchangeRepository", "PriceRepository"})
+@DependsOn({"ExchangeRepository", "BinancePriceRepository", "BittrexPriceRepository"})
 public class GetPriceFromThirdParty {
     private final ExchangeRepository exchangeRepository;
-    private final PriceRepository priceRepository;
+    private final BinancePriceRepository binancePriceRepository;
+    private final BittrexPriceRepository bittrexPriceRepository;
 
     @Autowired
-    public GetPriceFromThirdParty(ExchangeRepository exchangeRepository, PriceRepository priceRepository) {
+    public GetPriceFromThirdParty(ExchangeRepository exchangeRepository, BinancePriceRepository binancePriceRepository, BittrexPriceRepository bittrexPriceRepository) {
         this.exchangeRepository = exchangeRepository;
-        this.priceRepository = priceRepository;
+        this.binancePriceRepository = binancePriceRepository;
+        this.bittrexPriceRepository = bittrexPriceRepository;
 
         // Spawn a daemon thread to collect data
-        GetAndStoreDaemon getAndStoreDaemon = new GetAndStoreDaemon(2000L, this.priceRepository, this.exchangeRepository);
+        GetAndStoreDaemon getAndStoreDaemon = new GetAndStoreDaemon(2000L, this.exchangeRepository, this.binancePriceRepository, this.bittrexPriceRepository);
         Thread t = new Thread(getAndStoreDaemon);
         t.setDaemon(true);
         t.start();

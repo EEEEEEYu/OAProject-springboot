@@ -16,12 +16,14 @@ public class ExchangeConfig {
         return args -> {
             Exchange Binance = new Exchange(
                     "Binance",
-                    "https://api.binance.com/api/v3/ticker/bookTicker?symbol=BTCUSDT"
+                    "https://api.binance.com/api/v3/ticker/bookTicker?symbol={}",
+                    "BTCUSDT,ETHUSDT"
             );
 
             Exchange Bittrex = new Exchange(
                     "Bittrex",
-                    "https://api.bittrex.com/v3/markets/BTC-USDT/ticker"
+                    "https://api.bittrex.com/v3/markets/{}/ticker",
+                    "BTC-USDT,ETH-USDT"
             );
 
             repository.saveAll(

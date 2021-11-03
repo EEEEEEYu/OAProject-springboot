@@ -1,10 +1,10 @@
-package com.example.chainanalysis.Service;
+package com.example.chainanalysis.Service.RestObjects;
 
 import org.springframework.web.client.RestTemplate;
 
 import java.util.concurrent.Callable;
 
-class BittrexDataObj {
+public class BittrexDataObj implements DataObj{
     private String symbol;
     private Double lastTradeRate;
     private Double bidRate;
@@ -19,6 +19,7 @@ class BittrexDataObj {
         this.askRate = askRate;
     }
 
+    @Override
     public String getSymbol() {
         return symbol;
     }
@@ -60,20 +61,15 @@ class BittrexDataObj {
                 ", askRate=" + askRate +
                 '}';
     }
-}
 
-class BittrexCallable implements Callable<BittrexDataObj> {
 
-    private final String url;
-
-    public BittrexCallable(String url) {
-        this.url = url;
+    @Override
+    public Double getSellPrice() {
+        return this.bidRate;
     }
 
     @Override
-    public BittrexDataObj call() throws Exception {
-        RestTemplate restTemplate = new RestTemplate();
-        BittrexDataObj bittrexDataObj = restTemplate.getForObject(this.url, BittrexDataObj.class);
-        return bittrexDataObj;
+    public Double getBuyPrice() {
+        return this.askRate;
     }
 }

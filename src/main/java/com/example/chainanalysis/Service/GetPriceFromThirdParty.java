@@ -23,7 +23,7 @@ import java.util.concurrent.Future;
 
 class GetAndStoreDaemon implements Runnable {
 
-    private final Map<String, List<String>> urls;
+    private final Map<String, List<String>> urls; // Exchange name, Crypto name
     private final ExchangeRepository exchangeRepository;
     private final BinancePriceRepository binancePriceRepository;
     private final BittrexPriceRepository bittrexPriceRepository;

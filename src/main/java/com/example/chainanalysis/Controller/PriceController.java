@@ -5,7 +5,6 @@ import com.example.chainanalysis.Model.BittrexPrice;
 import com.example.chainanalysis.Model.Exchange;
 import com.example.chainanalysis.Service.ExchangeService;
 import com.example.chainanalysis.Service.PriceService;
-import com.example.chainanalysis.Service.RestObjects.AggDataObj;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

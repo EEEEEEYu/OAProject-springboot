@@ -17,7 +17,7 @@ public class ExchangeService {
         this.exchangeRepository = exchangeRepository;
     }
 
-    // Get all exchanges
+    // Get all exchanges data
     public List<Exchange> getAllExchanges() {
         return exchangeRepository.findAll();
     }

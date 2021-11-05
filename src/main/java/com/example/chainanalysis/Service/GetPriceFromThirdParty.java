@@ -37,11 +37,15 @@ class GetAndStoreDaemon implements Runnable {
         this.bittrexPriceRepository = bittrexPriceRepository;
     }
 
+    /***
+     * First fetch corresponding urls of each exchange from database. Then spawn threads to execute the request,
+     * get the data and store them in database.
+     */
     @Override
     public void run() {
         try {
             // Wait for exchange table initialization
-            Thread.sleep(5000);
+            Thread.sleep(6000);
 
             // Initialize all target urls
             List<Exchange> exchanges = this.exchangeRepository.findAll();
@@ -59,10 +63,10 @@ class GetAndStoreDaemon implements Runnable {
 
         try {
             while(true) {
-                ExecutorService threadPool = Executors.newSingleThreadExecutor();
+                ExecutorService threadPool = Executors.newCachedThreadPool();
                 // System.out.println(this.urls.get("Binance"));
                 // List of single crypto price pairs in an exchange
-                // We assume that the table of one exchange
+                // The table of one exchange corresponds to one request
                 Future<List<DataObj>> binance = threadPool.submit(new BinanceCallableObj(this.urls.get("Binance")));
                 Future<List<DataObj>> bittrex = threadPool.submit(new BittrexCallableObj(this.urls.get("Bittrex")));
 
@@ -110,6 +114,12 @@ public class GetPriceFromThirdParty {
     private final BinancePriceRepository binancePriceRepository;
     private final BittrexPriceRepository bittrexPriceRepository;
 
+    /***
+     * Spawn a daemon thread to fetch and store data in the background.
+     * @param exchangeRepository The exchange repo instance
+     * @param binancePriceRepository The binance exchange repo instance
+     * @param bittrexPriceRepository The bittrex exchange repo instance
+     */
     @Autowired
     public GetPriceFromThirdParty(ExchangeRepository exchangeRepository, BinancePriceRepository binancePriceRepository, BittrexPriceRepository bittrexPriceRepository) {
         this.exchangeRepository = exchangeRepository;

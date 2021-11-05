@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 
 public class BittrexCallableObj implements Callable<List<DataObj>> {
 
+    // List of target url strings
     private final List<String> urls;
 
     public BittrexCallableObj(List<String> urls) {

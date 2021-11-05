@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 
 public class BinanceCallableObj implements Callable<List<DataObj>> {
 
-    // A list of target strings
+    // A list of target url strings
     private final List<String> urls;
 
     public BinanceCallableObj(List<String> urls) {
